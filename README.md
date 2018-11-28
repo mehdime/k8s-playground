@@ -27,3 +27,5 @@ The app should now listen on port 5100. Try it: [http://localhost:5100/200](http
 ```
 
 When running on docker, we bind to local port 80. Try it: [http://localhost/200](http://localhost/200)
+
+See the comments in the `.sh` files and in the `src/StatusCoder/Dockerfile` file to understand the docker magic. 
