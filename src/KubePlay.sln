@@ -17,6 +17,7 @@ ProjectSection(SolutionItems) = preProject
 	..\run.sh = ..\run.sh
 	..\docker-build.sh = ..\docker-build.sh
 	..\docker-run.sh = ..\docker-run.sh
+	..\k8s-run.sh = ..\k8s-run.sh
 EndProjectSection
 EndProject
 Global

@@ -1,0 +1,59 @@
+##########
+# We're creating two Kubernetes objects here:
+#
+# 1. A Service: this sits in front our our pods, has its own IP address and takes care of routing traffic to any 
+#    of our running pod. A load balancer effectively.
+#
+# 2. A Deployment: this is the description of how we want to deploy our app on K8S: i.e.: what docker image we want to use,
+#    how many replicas we want, etc. 
+##########
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: statuscoder-service # Set to whatever you want.
+spec:
+  type: NodePort
+  selector:
+    app: statuscoder # Set to the label that we gave our pods (see the Deployment spec below). This is how this service knows which pods it should route traffic too. 
+  ports:
+  - targetPort: 5100 # The port that our app is listening to in the pods (i.e. the port that our ASP.NET app has been configured with)
+    port: 30000 # The port that will be exposed within the K8S cluster. Other apps inside the cluster must connect to that port to access our app. 
+    nodePort: 30000 # The port that will be exposed outside of the K8S cluster. That's what we can use to access the service from e.g. the local machine.
+    protocol: TCP
+    name: http
+    
+---
+
+apiVersion: apps/v1 # This is the K8S API version introduced in Kubernetes 1.9.0
+kind: Deployment
+metadata:
+  
+  # Set to whatever you want. This is the name that will displayed by 'kubectl get deployments'. And that's 
+  # how you can refer to this deployment in commands like 'kubectl describe deployment statuscoder-deployment' 
+  name: statuscoder-deployment 
+spec:
+  selector:
+    matchLabels:
+      app: statuscoder
+      
+  replicas: 3 # Tell K8S to run 3 pods using the template below
+
+  # What we want each pod to look like:
+  template:
+    metadata:
+      labels:
+        app: statuscoder    
+    spec:
+      containers:
+        # Set to whatever you want 
+      - name: statuscoder
+        
+        # See https://kubernetes.io/docs/concepts/configuration/overview/#container-images
+        # for more info on the 'image' and 'imagePullPolicy' values
+        image: statuscoder # Name of our Docker image (as set in our Dockerfile)
+        imagePullPolicy: Never # Prevent K8S from trying to pull the docker image from a remote repo. We know our image is present locally. 
+        
+        # The port that our ASP.NET app listens on and that we've instructed Docker to expose (see the Dockerfile) .
+        ports:
+        - containerPort: 5100
