@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker run ./src/StatusCoder/ --tag statuscoder
+docker run -p 80:5100 statuscoder statuscoder
