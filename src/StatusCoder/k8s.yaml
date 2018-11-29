@@ -2,7 +2,7 @@
 # We're creating two Kubernetes objects here:
 #
 # 1. A Service: this sits in front our our pods, has its own IP address and takes care of routing traffic to any 
-#    of our running pod. A load balancer effectively.
+#    of our running pods. A load balancer effectively.
 #
 # 2. A Deployment: this is the description of how we want to deploy our app on K8S: i.e.: what docker image we want to use,
 #    how many replicas we want, etc. 
@@ -13,13 +13,15 @@ kind: Service
 metadata:
   name: statuscoder-service # Set to whatever you want.
 spec:
+  # There are different types of services. This is a good overview of the differences between them: 
+  # https://medium.com/google-cloud/kubernetes-nodeport-vs-loadbalancer-vs-ingress-when-should-i-use-what-922f010849e0
   type: NodePort
   selector:
     app: statuscoder # Set to the label that we gave our pods (see the Deployment spec below). This is how this service knows which pods it should route traffic too. 
   ports:
   - targetPort: 5100 # The port that our app is listening to in the pods (i.e. the port that our ASP.NET app has been configured with)
     port: 30000 # The port that will be exposed within the K8S cluster. Other apps inside the cluster must connect to that port to access our app. 
-    nodePort: 30000 # The port that will be exposed outside of the K8S cluster. That's what we can use to access the service from e.g. the local machine.
+    nodePort: 30000 # The port that will be exposed outside of the K8S cluster. That's what we can use to access the service from e.g. the local machine. By default, nodePort must be in the 30000-32767 range. See https://kubernetes.io/docs/concepts/services-networking/service/#nodeport 
     protocol: TCP
     name: http
     
@@ -28,14 +30,13 @@ spec:
 apiVersion: apps/v1 # This is the K8S API version introduced in Kubernetes 1.9.0
 kind: Deployment
 metadata:
-  
-  # Set to whatever you want. This is the name that will displayed by 'kubectl get deployments'. And that's 
-  # how you can refer to this deployment in commands like 'kubectl describe deployment statuscoder-deployment' 
-  name: statuscoder-deployment 
+    name: statuscoder-deployment # Set to whatever you want. 
 spec:
+  # This selector defines how this deployment object will find the pods it's supposed to manage. That's how it can e.g. monitor
+  # the number of replicas that are currently running.
   selector:
     matchLabels:
-      app: statuscoder
+      app: statuscoder # Set to the label that we gave our pods (see pod label below) 
       
   replicas: 3 # Tell K8S to run 3 pods using the template below
 
@@ -43,7 +44,7 @@ spec:
   template:
     metadata:
       labels:
-        app: statuscoder    
+        app: statuscoder # The label that both the Deployment object and the Service object will use to identify the pods they're managing.
     spec:
       containers:
         # Set to whatever you want 
@@ -57,3 +58,12 @@ spec:
         # The port that our ASP.NET app listens on and that we've instructed Docker to expose (see the Dockerfile) .
         ports:
         - containerPort: 5100
+          
+        # Define the healthcheck endpoint that K8S will use to determine whether a pod is healthy or should be restarted
+        livenessProbe:
+          httpGet:
+            path: /health # This is an HTTP endpoint exposed by our app
+            port: 5100
+          initialDelaySeconds: 3
+          periodSeconds: 1
+

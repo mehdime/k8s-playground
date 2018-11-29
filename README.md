@@ -74,9 +74,49 @@ kubectl describe pod <pod name>
 
 # If a pod looks sad, view its logs (this will display the logs that our ASP.NET app writes to the console):
 kubectl logs <pod name>
+
+# To stop the app, delete both the deployment and the service we created in the .yaml file
+kubectl delete deployment statuscoder-deployment
+kubectl delete service statuscoder-service
+``` 
+
+#### Seeing the liveness probe in action
+Our .yaml file instructs K8S to start 3 replicas of our app (i.e. 3 pods). 
+
+K8S can be configured to continuously monitor the health of our pods via a **liveness probe** and to automatically restart pods that are unhealthy. 
+
+In our toy app, we've exposed a `/health` HTTP endpoint that returns the current health of the app (`200 OK` by default). You can try it yourself afer having started the app in K8S: [http://localhost:30000/health](http://localhost:30000/health)
+
+In [our .yaml file](src/StatusCoder/k8s.yaml) we've configured our pod's liveness probe to be this `/health` endpoint and instructed K8S to check it once a second. Check out the real-time logs of one of your running pods to see this endpoint getting hit once a second:
+
+```
+# List all the running pods to find the name of a pod
+kubectl get pods
+
+# Pick one of the pods and display its logs in real-time
+kubectl logs --follow <pod name>
+```
+
+In order to test the ability of K8S to detect and restart unhealthy pods, our toy app also exposes a `/die` endpoint that you can hit to cause this instance of the app to start reporting an unhealthy status on its `/health` endpoint (the health endpoint will now return `503 Service Unavailable`).
+
+Try it now: [http://localhost:30000/die](http://localhost:30000/die)
+
+One of your running pods is now reporting an unhealthy status on its liveness probe. Within a second, K8S should have detected this and restarted this pod. You can check if this happened by listing the running pods:
+
+```
+# One of your running pods should now have a 'RESTARTS' value of 1
+kubectl get pods
+```
+
+Display the current state of the pod that was restarted and see in its Events table the sequence of events that led to the restart of that pod:
+
+```
+kubectl describe pod <name of the pod that was restarted>
 ``` 
 
 #### Understanding the K8S magic
 See the comments in the [k8s.yaml](src/StatusCoder/k8s.yaml) first. Then look at how we run it in [k8s-run.sh](k8s-run.sh).
 
-And then... oh my.
+The [kubectl cheatsheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/) is very useful.
+
+Taking a few minutes to read the [Understanding Kubernetes Objects](https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/) article is very useful to graps some key fundamental understanding of how K8S is architectured.  
