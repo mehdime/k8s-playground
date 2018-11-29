@@ -52,7 +52,7 @@ spec:
         
         # See https://kubernetes.io/docs/concepts/configuration/overview/#container-images
         # for more info on the 'image' and 'imagePullPolicy' values
-        image: statuscoder # Name of our Docker image (as set in our Dockerfile)
+        image: statuscoder # Name of our Docker image (as specified during the 'docker build' operation - see docker-build.sh)
         imagePullPolicy: Never # Prevent K8S from trying to pull the docker image from a remote repo. We know our image is present locally. 
         
         # The port that our ASP.NET app listens on and that we've instructed Docker to expose (see the Dockerfile) .
