@@ -41,6 +41,8 @@ See the comments in the [Dockerfile](src/StatusCoder/Dockerfile) first. Then che
 
 From there, the [Docker command-line reference](https://docs.docker.com/engine/reference/commandline/cli/) will answer most of your questions.
 
+If you've never worked with Docker before, then taking a few minutes to follow the [Docker Katacoda](https://www.katacoda.com/courses/docker) is probably the best and quickest way to get familiar with the most basic commands and concepts.
+
 # Run on Kubernetes
 
 First, build the Docker image:
@@ -119,4 +121,6 @@ See the comments in the [k8s.yaml](src/StatusCoder/k8s.yaml) first. Then look at
 
 The [kubectl cheatsheet](https://kubernetes.io/docs/reference/kubectl/cheatsheet/) is very useful.
 
-Taking a few minutes to read the [Understanding Kubernetes Objects](https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/) article is very useful to graps some key fundamental understanding of how K8S is architectured.  
+Taking a few minutes to read the [Understanding Kubernetes Objects](https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/) article is very useful to graps some key fundamental understanding of how K8S is architectured.
+
+If you've never worked with K8S before, taking a few minutes to follow the [K8S Katacoda](https://www.katacoda.com/courses/kubernetes) is probably the best and quickest way to get familiar with the most basic commands and concepts.
