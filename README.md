@@ -63,7 +63,7 @@ Here are some useful commands to explore or troubleshoot:
 
 ```
 # View all the deployments running on the cluster. You should see 'statuscoder-deployment' in there.
-kubectl get deploymeents
+kubectl get deployments
 
 # View the current state of our deployment, including a history of what happened to it.
 kubectl describe deployment statuscoder-deployment
